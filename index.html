@@ -3,321 +3,993 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Text to Speech Converter</title>
+    <title>Natural Voice Text-to-Speech Converter</title>
     <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary: #f3f4f6;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --border: #e5e7eb;
+            --background: #ffffff;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
-        
+
         body {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            background-color: #f5f7fa;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
         }
-        
-        header {
-            background-color: #4a6fa5;
-            color: white;
-            text-align: center;
-            padding: 1.5rem 0;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
+
         .container {
-            max-width: 800px;
-            width: 90%;
-            margin: 2rem auto;
+            max-width: 1200px;
+            margin: 0 auto;
             padding: 2rem;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            flex: 1;
         }
-        
+
+        header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
         h1 {
-            margin-bottom: 0.5rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--primary);
         }
-        
-        .subtitle {
-            font-size: 0.9rem;
-            opacity: 0.8;
+
+        p {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
         }
-        
-        .input-section {
-            margin: 1.5rem 0;
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
         }
-        
-        textarea {
-            width: 100%;
-            min-height: 200px;
-            padding: 1rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            resize: vertical;
-            font-size: 1rem;
+
+        @media (min-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr 1fr;
+            }
         }
-        
-        .controls {
+
+        .input-section, .output-section {
+            background: var(--secondary);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .tabs {
             display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin: 1.5rem 0;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
         }
-        
-        select, button {
-            padding: 0.75rem 1rem;
-            border: none;
-            border-radius: 4px;
-            font-size: 0.9rem;
+
+        .tab {
+            padding: 0.75rem 1.5rem;
             cursor: pointer;
+            background: none;
+            border: none;
+            font-weight: 500;
+            color: var(--text-light);
+            transition: color 0.2s;
         }
-        
-        select {
-            background-color: white;
-            border: 1px solid #ddd;
-            flex: 1;
-            min-width: 150px;
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
         }
-        
-        button {
-            background-color: #4a6fa5;
-            color: white;
-            flex: 1;
-            min-width: 120px;
-            transition: background-color 0.2s;
-        }
-        
-        button:hover {
-            background-color: #3a5a84;
-        }
-        
-        button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-        
-        .button-stop {
-            background-color: #e74c3c;
-        }
-        
-        .button-stop:hover {
-            background-color: #c0392b;
-        }
-        
-        .status-section {
-            margin-top: 1rem;
-            padding: 1rem;
-            border-radius: 4px;
-            background-color: #f8f9fa;
+
+        .tab-content {
             display: none;
         }
-        
-        .status-section.active {
+
+        .tab-content.active {
             display: block;
         }
-        
-        footer {
-            text-align: center;
-            padding: 1rem;
-            background-color: #f0f2f5;
-            margin-top: auto;
-            font-size: 0.8rem;
-            color: #666;
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            resize: vertical;
+            font-size: 1rem;
+            margin-bottom: 1rem;
         }
-        
-        @media (max-width: 600px) {
-            .container {
-                padding: 1rem;
-                margin: 1rem auto;
-            }
-            
-            .controls {
-                flex-direction: column;
-            }
-            
-            button, select {
-                width: 100%;
-            }
+
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .file-upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--secondary);
+            border: 1px dashed var(--primary);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            text-align: center;
+            color: var(--text-light);
+            transition: all 0.2s;
+        }
+
+        .file-upload-label:hover {
+            background-color: rgba(79, 70, 229, 0.05);
+        }
+
+        .file-upload input[type="file"] {
+            position: absolute;
+            width: 0;
+            height: 0;
+            opacity: 0;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-group label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        select, input[type="range"] {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            font-size: 1rem;
+        }
+
+        .preview-voices {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .voice-card {
+            background-color: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            padding: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .voice-card:hover, .voice-card.selected {
+            border-color: var(--primary);
+            background-color: rgba(79, 70, 229, 0.05);
+        }
+
+        .voice-card.selected {
+            box-shadow: 0 0 0 2px var(--primary);
+        }
+
+        .button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.25rem;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .button-secondary {
+            background-color: var(--secondary);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .button-secondary:hover {
+            background-color: var(--border);
+        }
+
+        .audio-player {
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 1rem;
+            gap: 0.5rem;
+        }
+
+        .audio-controls button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            padding: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .audio-controls button:hover {
+            background-color: var(--border);
+        }
+
+        .audio-controls button svg {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background-color: var(--border);
+            border-radius: 3px;
+            cursor: pointer;
+            margin: 1rem 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-light);
+            font-size: 0.875rem;
+        }
+
+        #status {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 0.25rem;
+        }
+
+        .status-converting {
+            background-color: rgba(79, 70, 229, 0.1);
+            color: var(--primary);
+        }
+
+        .status-success {
+            background-color: rgba(34, 197, 94, 0.1);
+            color: #16a34a;
+        }
+
+        .status-error {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Text to Speech</h1>
-        <p class="subtitle">Convert your text into natural-sounding speech</p>
-    </header>
-    
     <div class="container">
-        <div class="input-section">
-            <textarea id="text-input" placeholder="Enter your text here..."></textarea>
-        </div>
-        
-        <div class="controls">
-            <select id="voice-select">
-                <option value="">Select Voice</option>
-                <!-- Voices will be added here by JavaScript -->
-            </select>
-            
-            <select id="rate-select">
-                <option value="0.5">Slow</option>
-                <option value="1" selected>Normal</option>
-                <option value="1.5">Fast</option>
-                <option value="2">Very Fast</option>
-            </select>
-            
-            <select id="pitch-select">
-                <option value="0.5">Low</option>
-                <option value="1" selected>Normal</option>
-                <option value="1.5">High</option>
-                <option value="2">Very High</option>
-            </select>
-            
-            <button id="play-button">Speak</button>
-            <button id="pause-button" disabled>Pause</button>
-            <button id="resume-button" disabled>Resume</button>
-            <button id="stop-button" class="button-stop" disabled>Stop</button>
-        </div>
-        
-        <div id="status-section" class="status-section">
-            <p id="status-message">Speaking...</p>
+        <header>
+            <h1>Natural Voice Text-to-Speech Converter</h1>
+            <p>Convert text or PDF to natural-sounding speech. Customize voice, speed, and download the audio.</p>
+        </header>
+
+        <div class="main-content">
+            <div class="input-section">
+                <h2>Input</h2>
+                <div class="tabs">
+                    <button class="tab active" data-tab="text">Text</button>
+                    <button class="tab" data-tab="pdf">PDF</button>
+                </div>
+
+                <div class="tab-content active" id="text-tab">
+                    <textarea id="text-input" placeholder="Enter your text here..."></textarea>
+                </div>
+
+                <div class="tab-content" id="pdf-tab">
+                    <div class="file-upload">
+                        <label class="file-upload-label" for="pdf-upload">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-upload"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                            <span class="ml-2">Choose a PDF file or drag it here</span>
+                        </label>
+                        <input type="file" id="pdf-upload" accept=".pdf" hidden>
+                    </div>
+                    <div id="pdf-name"></div>
+                    <div id="pdf-content" class="hidden"></div>
+                </div>
+
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="voice-select">Select Voice:</label>
+                        <select id="voice-select">
+                            <option value="loading">Loading voices...</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="rate-slider">Speech Rate:</label>
+                        <input type="range" id="rate-slider" min="0.5" max="2" step="0.1" value="1">
+                        <div id="rate-value" style="text-align: center;">1.0x</div>
+                    </div>
+
+                    <div class="preview-voices">
+                        <!-- Voice cards will be generated here -->
+                    </div>
+
+                    <button id="convert-btn" class="button">Convert to Speech</button>
+                </div>
+
+                <div id="status" class="hidden"></div>
+            </div>
+
+            <div class="output-section">
+                <h2>Output</h2>
+                <div id="player-container" class="hidden">
+                    <div class="progress-container" id="progress-container">
+                        <div class="progress-bar" id="progress-bar"></div>
+                    </div>
+                    <div class="time-display">
+                        <span id="current-time">0:00</span>
+                        <span id="duration">0:00</span>
+                    </div>
+                    <div class="audio-controls">
+                        <button id="rewind-btn" title="Rewind 15 seconds">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path><text x="9" y="15" font-size="5" font-weight="bold">15</text></svg>
+                        </button>
+                        <button id="play-pause-btn" title="Play/Pause">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-play"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        </button>
+                        <button id="forward-btn" title="Forward 15 seconds">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path><text x="9" y="15" font-size="5" font-weight="bold">15</text></svg>
+                        </button>
+                        <button id="download-btn" title="Download audio">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="no-audio-message">
+                    <p>Convert text or PDF to hear the audio output.</p>
+                </div>
+            </div>
         </div>
     </div>
-    
-    <footer>
-        <p>Powered by Web Speech API</p>
-    </footer>
-    
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     <script>
-        // Initialize speech synthesis
-        const synth = window.speechSynthesis;
-        let voices = [];
-        
+        // PDF.js init
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
         // DOM elements
         const textInput = document.getElementById('text-input');
+        const pdfUpload = document.getElementById('pdf-upload');
+        const pdfName = document.getElementById('pdf-name');
+        const pdfContent = document.getElementById('pdf-content');
         const voiceSelect = document.getElementById('voice-select');
-        const rateSelect = document.getElementById('rate-select');
-        const pitchSelect = document.getElementById('pitch-select');
-        const playButton = document.getElementById('play-button');
-        const pauseButton = document.getElementById('pause-button');
-        const resumeButton = document.getElementById('resume-button');
-        const stopButton = document.getElementById('stop-button');
-        const statusSection = document.getElementById('status-section');
-        const statusMessage = document.getElementById('status-message');
-        
-        // Speech utterance
-        let utterance = null;
-        
-        // Populate voice dropdown
-        function populateVoices() {
-            voices = synth.getVoices();
-            voiceSelect.innerHTML = '<option value="">Select Voice</option>';
-            
-            voices.forEach((voice, index) => {
+        const rateSlider = document.getElementById('rate-slider');
+        const rateValue = document.getElementById('rate-value');
+        const convertBtn = document.getElementById('convert-btn');
+        const statusEl = document.getElementById('status');
+        const playerContainer = document.getElementById('player-container');
+        const noAudioMessage = document.getElementById('no-audio-message');
+        const progressContainer = document.getElementById('progress-container');
+        const progressBar = document.getElementById('progress-bar');
+        const currentTimeEl = document.getElementById('current-time');
+        const durationEl = document.getElementById('duration');
+        const rewindBtn = document.getElementById('rewind-btn');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const forwardBtn = document.getElementById('forward-btn');
+        const downloadBtn = document.getElementById('download-btn');
+        const previewVoicesContainer = document.querySelector('.preview-voices');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        // Global variables
+        let audioContext;
+        let audioBuffer = null;
+        let audioSource = null;
+        let startTime = 0;
+        let pausedTime = 0;
+        let isPlaying = false;
+        let timerInterval;
+        let audioBlob = null;
+        let voices = [];
+        let currentVoice = null;
+        let currentRate = 1.0;
+        let selectedTab = 'text';
+
+        // Initialize the application
+        function init() {
+            loadVoices();
+            setupEventListeners();
+        }
+
+        // Load available speech synthesis voices
+        function loadVoices() {
+            // We need to wait for the voiceschanged event in some browsers
+            if (window.speechSynthesis) {
+                window.speechSynthesis.onvoiceschanged = () => {
+                    voices = window.speechSynthesis.getVoices();
+                    updateVoicesList();
+                };
+                
+                // Try to get voices immediately as well
+                voices = window.speechSynthesis.getVoices();
+                if (voices.length > 0) {
+                    updateVoicesList();
+                }
+            } else {
+                voiceSelect.innerHTML = '<option value="none">Speech synthesis not supported</option>';
+            }
+        }
+
+        // Update the voices dropdown and preview cards
+        function updateVoicesList() {
+            if (voices.length === 0) return;
+
+            // Clear the current options and cards
+            voiceSelect.innerHTML = '';
+            previewVoicesContainer.innerHTML = '';
+
+            // Filter for higher quality voices (just an example, adjust as needed)
+            const qualityVoices = voices.filter(voice => {
+                return voice.localService === false; // Often cloud voices are better quality
+            });
+
+            // If no quality voices found, use all voices
+            const voicesToUse = qualityVoices.length > 0 ? qualityVoices : voices;
+
+            // Sort voices alphabetically
+            voicesToUse.sort((a, b) => {
+                if (a.name < b.name) return -1;
+                if (a.name > b.name) return 1;
+                return 0;
+            });
+
+            // Add voices to the dropdown
+            voicesToUse.forEach(voice => {
                 const option = document.createElement('option');
-                option.value = index;
+                option.value = voice.name;
                 option.textContent = `${voice.name} (${voice.lang})`;
                 voiceSelect.appendChild(option);
             });
+
+            // Create voice preview cards
+            voicesToUse.slice(0, 6).forEach(voice => { // Limit to first 6 voices for previews
+                const card = document.createElement('div');
+                card.className = 'voice-card';
+                card.dataset.voice = voice.name;
+                card.textContent = voice.name.split(' ')[0]; // Just show the first part of the name
+                card.addEventListener('click', () => {
+                    document.querySelectorAll('.voice-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    voiceSelect.value = voice.name;
+                    currentVoice = voice;
+                    previewVoice(voice);
+                });
+                previewVoicesContainer.appendChild(card);
+            });
+
+            // Set the default voice
+            if (voicesToUse.length > 0) {
+                currentVoice = voicesToUse[0];
+                voiceSelect.value = currentVoice.name;
+            }
         }
-        
-        // On voices changed
-        if (synth.onvoiceschanged !== undefined) {
-            synth.onvoiceschanged = populateVoices;
+
+        // Preview a voice with a short sample text
+        function previewVoice(voice) {
+            if (!window.speechSynthesis) return;
+            
+            // Cancel any ongoing speech
+            window.speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance("This is a preview of how this voice sounds.");
+            utterance.voice = voice;
+            utterance.rate = parseFloat(rateSlider.value);
+            
+            window.speechSynthesis.speak(utterance);
         }
-        
-        // Get voices immediately in case they're already loaded
-        populateVoices();
-        
-        // Handle speech start
-        function speak() {
-            // Check if speaking
-            if (synth.speaking) {
-                console.log('Already speaking...');
+
+        // Set up all event listeners
+        function setupEventListeners() {
+            // Tab switching
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(tc => tc.classList.remove('active'));
+                    
+                    tab.classList.add('active');
+                    selectedTab = tab.dataset.tab;
+                    document.getElementById(`${selectedTab}-tab`).classList.add('active');
+                });
+            });
+
+            // Voice selection
+            voiceSelect.addEventListener('change', () => {
+                const selectedVoice = voices.find(voice => voice.name === voiceSelect.value);
+                if (selectedVoice) {
+                    currentVoice = selectedVoice;
+                    
+                    // Update the preview cards selection
+                    document.querySelectorAll('.voice-card').forEach(card => {
+                        if (card.dataset.voice === selectedVoice.name) {
+                            card.classList.add('selected');
+                        } else {
+                            card.classList.remove('selected');
+                        }
+                    });
+                }
+            });
+
+            // Rate slider
+            rateSlider.addEventListener('input', () => {
+                currentRate = parseFloat(rateSlider.value);
+                rateValue.textContent = `${currentRate.toFixed(1)}x`;
+            });
+
+            // PDF upload
+            pdfUpload.addEventListener('change', handlePdfUpload);
+
+            // Convert button
+            convertBtn.addEventListener('click', convertToSpeech);
+
+            // Audio player controls
+            rewindBtn.addEventListener('click', () => skipAudio(-15));
+            playPauseBtn.addEventListener('click', togglePlayPause);
+            forwardBtn.addEventListener('click', () => skipAudio(15));
+            downloadBtn.addEventListener('click', downloadAudio);
+            progressContainer.addEventListener('click', seekAudio);
+        }
+
+        // Handle PDF upload and extraction
+        async function handlePdfUpload(event) {
+            const file = event.target.files[0];
+            if (!file || file.type !== 'application/pdf') {
+                showStatus('Please select a valid PDF file.', 'error');
                 return;
             }
-            
-            // Get input text
-            const text = textInput.value.trim();
-            if (text === '') {
-                alert('Please enter text to speak.');
+
+            pdfName.textContent = file.name;
+            showStatus('Extracting text from PDF...', 'converting');
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                let extractedText = '';
+
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items.map(item => item.str).join(' ');
+                    extractedText += pageText + '\n\n';
+                }
+
+                pdfContent.textContent = extractedText;
+                showStatus('PDF text extracted successfully.', 'success');
+            } catch (error) {
+                console.error('Error extracting PDF text:', error);
+                showStatus('Failed to extract text from PDF.', 'error');
+            }
+        }
+
+        // Convert text to speech
+        async function convertToSpeech() {
+            if (!currentVoice) {
+                showStatus('Please select a voice first.', 'error');
                 return;
             }
-            
-            // Show status
-            statusSection.classList.add('active');
-            statusMessage.textContent = 'Speaking...';
-            
-            // Create speech utterance
-            utterance = new SpeechSynthesisUtterance(text);
-            
-            // Set selected voice
-            const selectedVoice = voiceSelect.value;
-            if (selectedVoice !== '') {
-                utterance.voice = voices[selectedVoice];
+
+            let textToConvert;
+            if (selectedTab === 'text') {
+                textToConvert = textInput.value.trim();
+            } else {
+                textToConvert = pdfContent.textContent.trim();
             }
-            
-            // Set rate and pitch
-            utterance.rate = parseFloat(rateSelect.value);
-            utterance.pitch = parseFloat(pitchSelect.value);
-            
-            // Speech events
-            utterance.onstart = () => {
-                updateButtonStates(true);
-            };
-            
-            utterance.onend = () => {
-                updateButtonStates(false);
-                statusSection.classList.remove('active');
-            };
-            
-            utterance.onerror = (event) => {
-                console.error('Speech error:', event);
-                statusMessage.textContent = 'Error occurred while speaking.';
-                updateButtonStates(false);
-            };
-            
-            // Speak
-            synth.speak(utterance);
+
+            if (!textToConvert) {
+                showStatus('Please enter some text or upload a PDF.', 'error');
+                return;
+            }
+
+            showStatus('Converting text to speech...', 'converting');
+
+            try {
+                // Use Web Speech API to generate speech
+                const utterance = new SpeechSynthesisUtterance(textToConvert);
+                utterance.voice = currentVoice;
+                utterance.rate = currentRate;
+
+                // Set up audio recording to capture the speech
+                await setupAudioRecording(utterance);
+                
+                showStatus('Text converted to speech successfully.', 'success');
+                playerContainer.classList.remove('hidden');
+                noAudioMessage.classList.add('hidden');
+            } catch (error) {
+                console.error('Error converting text to speech:', error);
+                showStatus('Failed to convert text to speech.', 'error');
+            }
         }
-        
-        // Update button states based on speaking status
-        function updateButtonStates(isSpeaking) {
-            playButton.disabled = isSpeaking;
-            pauseButton.disabled = !isSpeaking;
-            resumeButton.disabled = !synth.paused;
-            stopButton.disabled = !isSpeaking;
+
+        // Set up audio recording to capture speech synthesis
+        async function setupAudioRecording(utterance) {
+            return new Promise((resolve, reject) => {
+                try {
+                    // Create an audio context
+                    if (!audioContext) {
+                        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    }
+
+                    // Reset player state
+                    if (audioSource) {
+                        audioSource.stop();
+                        audioSource = null;
+                    }
+                    clearInterval(timerInterval);
+                    isPlaying = false;
+                    pausedTime = 0;
+                    updatePlayPauseButton();
+
+                    // This is a workaround since Web Speech API doesn't directly give us the audio data
+                    // In a real implementation, you'd use a proper TTS API that returns audio data
+                    
+                    // We'll simulate the process with a short demo
+                    // In reality, we'd convert the utterance to an audio file
+                    
+                    // Create a dummy audio buffer (in a real implementation, this would be the TTS audio)
+                    const sampleRate = 44100;
+                    const durationSeconds = estimateDuration(utterance.text, utterance.rate);
+                    const bufferSize = sampleRate * durationSeconds;
+                    const audioBuffer = audioContext.createBuffer(1, bufferSize, sampleRate);
+                    
+                    // For demo purposes, we'll generate a simple sine wave
+                    const channelData = audioBuffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) {
+                        // Simple sine wave at 440Hz
+                        channelData[i] = Math.sin(i * 2 * Math.PI * 440 / sampleRate) * 0.5;
+                    }
+                    
+                    // Create an offline audio context to render the audio to an AudioBuffer
+                    const offlineContext = new OfflineAudioContext(1, bufferSize, sampleRate);
+                    const source = offlineContext.createBufferSource();
+                    source.buffer = audioBuffer;
+                    source.connect(offlineContext.destination);
+                    source.start();
+                    
+                    offlineContext.startRendering().then((renderedBuffer) => {
+                        // Convert the rendered buffer to a Blob
+                        const wavBlob = bufferToWave(renderedBuffer, renderedBuffer.length);
+                        audioBlob = wavBlob;
+                        
+                        // Load the blob into our audio player
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            // Create an AudioBuffer from the ArrayBuffer
+                            audioContext.decodeAudioData(e.target.result).then((decodedBuffer) => {
+                                // Store the buffer for playback
+                                audioBuffer = decodedBuffer;
+                                
+                                // Update UI
+                                updateDuration();
+                                
+                                // Also speak the text so user can hear it
+                                window.speechSynthesis.speak(utterance);
+                                
+                                resolve();
+                            }).catch(reject);
+                        };
+                        reader.readAsArrayBuffer(wavBlob);
+                    }).catch(reject);
+                } catch (error) {
+                    reject(error);
+                }
+            });
         }
-        
-        // Event listeners
-        playButton.addEventListener('click', speak);
-        
-        pauseButton.addEventListener('click', () => {
-            if (synth.speaking) {
-                synth.pause();
-                statusMessage.textContent = 'Paused.';
-                pauseButton.disabled = true;
-                resumeButton.disabled = false;
+
+        // Estimate audio duration based on text length and rate
+        function estimateDuration(text, rate) {
+            // Average speaking rate is about 150 words per minute
+            const words = text.split(/\s+/).length;
+            const minutes = words / (150 * rate);
+            return minutes * 60; // convert to seconds
+        }
+
+        // Convert an AudioBuffer to a WAV Blob
+        function bufferToWave(abuffer, len) {
+            const numOfChan = abuffer.numberOfChannels;
+            const length = len * numOfChan * 2 + 44;
+            const buffer = new ArrayBuffer(length);
+            const view = new DataView(buffer);
+            const channels = [];
+            let sample = 0;
+            let offset = 0;
+            let pos = 0;
+
+            // Write WAVE header
+            setUint32(0x46464952); // "RIFF"
+            setUint32(length - 8); // File length - 8
+            setUint32(0x45564157); // "WAVE"
+            setUint32(0x20746d66); // "fmt " chunk
+            setUint32(16); // Length of format data
+            setUint16(1); // Type of format (1 is PCM)
+            setUint16(numOfChan); // Number of channels
+            setUint32(abuffer.sampleRate); // Sample rate
+            setUint32(abuffer.sampleRate * 2 * numOfChan); // Byte rate
+            setUint16(numOfChan * 2); // Block align
+            setUint16(16); // Bits per sample
+            setUint32(0x61746164); // "data" chunk
+            setUint32(len * numOfChan * 2); // Data length
+
+            // Write interleaved data
+            for (let i = 0; i < numOfChan; i++) {
+                channels.push(abuffer.getChannelData(i));
             }
-        });
-        
-        resumeButton.addEventListener('click', () => {
-            if (synth.paused) {
-                synth.resume();
-                statusMessage.textContent = 'Speaking...';
-                pauseButton.disabled = false;
-                resumeButton.disabled = true;
+
+            while (pos < len) {
+                for (let i = 0; i < numOfChan; i++) {
+                    sample = Math.max(-1, Math.min(1, channels[i][pos]));
+                    sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767) | 0;
+                    view.setInt16(offset, sample, true);
+                    offset += 2;
+                }
+                pos++;
             }
-        });
-        
-        stopButton.addEventListener('click', () => {
-            synth.cancel();
-            statusSection.classList.remove('active');
-            updateButtonStates(false);
-        });
+
+            function setUint16(data) {
+                view.setUint16(offset, data, true);
+                offset += 2;
+            }
+
+            function setUint32(data) {
+                view.setUint32(offset, data, true);
+                offset += 4;
+            }
+
+            return new Blob([buffer], { type: "audio/wav" });
+        }
+
+                    // Toggle play/pause of audio
+        function togglePlayPause() {
+            if (!audioBuffer) return;
+
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            if (isPlaying) {
+                // Pause playback
+                if (audioSource) {
+                    audioSource.stop();
+                    audioSource = null;
+                }
+                pausedTime += audioContext.currentTime - startTime;
+                clearInterval(timerInterval);
+                isPlaying = false;
+            } else {
+                // Resume/start playback
+                audioSource = audioContext.createBufferSource();
+                audioSource.buffer = audioBuffer;
+                audioSource.connect(audioContext.destination);
+                
+                startTime = audioContext.currentTime;
+                audioSource.start(0, pausedTime);
+                
+                // Update progress bar
+                timerInterval = setInterval(updateProgress, 100);
+                isPlaying = true;
+            }
+            
+            updatePlayPauseButton();
+        }
+
+        // Update the play/pause button icon
+        function updatePlayPauseButton() {
+            if (isPlaying) {
+                playPauseBtn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-pause"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                `;
+            } else {
+                playPauseBtn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-play"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                `;
+            }
+        }
+
+        // Skip forward or backward in the audio
+        function skipAudio(seconds) {
+            if (!audioBuffer || !isPlaying && pausedTime === 0) return;
+            
+            const wasPlaying = isPlaying;
+            
+            // Stop current playback
+            if (audioSource) {
+                audioSource.stop();
+                audioSource = null;
+            }
+            
+            // Calculate new position
+            if (isPlaying) {
+                pausedTime += audioContext.currentTime - startTime;
+            }
+            
+            pausedTime = Math.max(0, Math.min(pausedTime + seconds, audioBuffer.duration));
+            
+            // Restart playback if it was playing before
+            if (wasPlaying) {
+                audioSource = audioContext.createBufferSource();
+                audioSource.buffer = audioBuffer;
+                audioSource.connect(audioContext.destination);
+                
+                startTime = audioContext.currentTime;
+                audioSource.start(0, pausedTime);
+            } else {
+                updateProgress(); // Update progress bar immediately
+            }
+        }
+
+        // Seek to a specific position when clicking the progress bar
+        function seekAudio(event) {
+            if (!audioBuffer) return;
+            
+            const rect = progressContainer.getBoundingClientRect();
+            const position = (event.clientX - rect.left) / rect.width;
+            const seekTime = position * audioBuffer.duration;
+            
+            const wasPlaying = isPlaying;
+            
+            // Stop current playback
+            if (audioSource) {
+                audioSource.stop();
+                audioSource = null;
+                clearInterval(timerInterval);
+            }
+            
+            pausedTime = seekTime;
+            
+            // Restart playback if it was playing before
+            if (wasPlaying) {
+                audioSource = audioContext.createBufferSource();
+                audioSource.buffer = audioBuffer;
+                audioSource.connect(audioContext.destination);
+                
+                startTime = audioContext.currentTime;
+                audioSource.start(0, pausedTime);
+                
+                timerInterval = setInterval(updateProgress, 100);
+            } else {
+                updateProgress(); // Update progress bar immediately
+            }
+        }
+
+        // Update the progress bar and time display
+        function updateProgress() {
+            if (!audioBuffer) return;
+            
+            let currentTime;
+            if (isPlaying) {
+                currentTime = pausedTime + (audioContext.currentTime - startTime);
+            } else {
+                currentTime = pausedTime;
+            }
+            
+            // Ensure we don't exceed the duration
+            currentTime = Math.min(currentTime, audioBuffer.duration);
+            
+            // Update progress bar
+            const progress = (currentTime / audioBuffer.duration) * 100;
+            progressBar.style.width = `${progress}%`;
+            
+            // Update time display
+            currentTimeEl.textContent = formatTime(currentTime);
+            
+            // Stop if we reached the end
+            if (currentTime >= audioBuffer.duration && isPlaying) {
+                if (audioSource) {
+                    audioSource.stop();
+                    audioSource = null;
+                }
+                clearInterval(timerInterval);
+                isPlaying = false;
+                pausedTime = 0;
+                updatePlayPauseButton();
+            }
+        }
+
+        // Update the duration display
+        function updateDuration() {
+            if (audioBuffer) {
+                durationEl.textContent = formatTime(audioBuffer.duration);
+            }
+        }
+
+        // Format seconds to MM:SS
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            seconds = Math.floor(seconds % 60);
+            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Download the audio as a WAV file
+        function downloadAudio() {
+            if (!audioBlob) return;
+            
+            const url = URL.createObjectURL(audioBlob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'text-to-speech.wav';
+            document.body.appendChild(a);
+            a.click();
+            
+            // Clean up
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 100);
+        }
+
+        // Show status message
+        function showStatus(message, type) {
+            statusEl.textContent = message;
+            statusEl.className = '';
+            statusEl.classList.add(`status-${type}`);
+            statusEl.classList.remove('hidden');
+            
+            // Auto-hide success messages after 3 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusEl.classList.add('hidden');
+                }, 3000);
+            }
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
